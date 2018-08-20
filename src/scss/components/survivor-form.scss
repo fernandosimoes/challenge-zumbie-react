@@ -1,0 +1,17 @@
+.checkbox--items {
+  display: flex;
+  flex-wrap: wrap;
+  float: left;
+  input {
+    width: 100%;
+  }
+}
+.marker{ 
+  background: rgb(0, 0, 0);
+  width: 50px;
+  height: 40px;
+  color: #fff;
+  text-align: center;
+  font-size: 10px;
+  padding: 5px;
+}
