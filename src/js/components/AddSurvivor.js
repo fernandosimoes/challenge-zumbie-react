@@ -3,7 +3,7 @@ import {addPeople} from '../actions/people';
 import { connect } from 'react-redux';
 import SearchGeoCoding from './SearchGeoCoding';
 import PropTypes from 'prop-types';
-
+import {Redirect} from 'react-router-dom';
 
 class Survivor extends Component {
 
@@ -15,7 +15,7 @@ class Survivor extends Component {
       age: '',
       gender: '',
       items: {},
-      lonlat: '1111',
+      lonlat: '',
     }
 
     this.formsubmit = this.formsubmit.bind(this);
@@ -40,6 +40,8 @@ class Survivor extends Component {
     formcontent.gender = this.state.gender;
     formcontent.items = items;
     formcontent.lonlat = this.state.lonlat;
+    location.href="/"
+    // <Redirect to="/" />
     this.props.addPeople(formcontent);
   }
 
@@ -73,15 +75,12 @@ class Survivor extends Component {
     item[e.target.name] = e.target.value;
     this.setState({ items: item })
   }
-  fetchPlaces() {
-    const { google, map } = this.props;
-    const service = new google.maps.places.PlacesService(map);
-    console.log(service);
-  }
+  
 
   render() {
     return (
       <div className="container margin--top">
+          <form onSubmit={this.formsubmit}>
         <div className="columns">
           <div className="column">
             <div className="field">
@@ -126,7 +125,7 @@ class Survivor extends Component {
               </div>
             </div>
             <div className="submit">
-              <button className="button is-primary" onClick={this.formsubmit}>Submit</button>
+              <button className="button is-primary" type="submit">Submit</button>
             </div>
           </div>
           <div className="column">
@@ -141,7 +140,7 @@ class Survivor extends Component {
             </div>
           </div>
         </div>
-        
+         </form>
       </div>
     )
   }

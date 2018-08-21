@@ -1,82 +1,7 @@
 import React, { Component} from 'react';
-import PlacesAutocomplete, {
-  geocodeByAddress,
-  getLatLng,
-} from 'react-places-autocomplete';
-
-/*
-class SearchGeoCoding extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      address: ''
-    }
-
-    this.handleSelect = this.handleSelect.bind(this)
-  }
-
-  handleChange = address => {
-    this.setState({ address });
-  };
-
-  handleSelect = address => {
-    geocodeByAddress(address)
-      .then(results => getLatLng(results[0]))
-      .then(latLng => {
-        
-        this.props.updatelonlat(latLng)
-      })
-      .catch(error => console.error('Error', error));
-  };
-  render() {
-    return (
-      <div>
-        <PlacesAutocomplete
-          value={this.state.address}
-          onChange={this.handleChange}
-          onSelect={this.handleSelect}
-        >
-          {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
-            <div>
-              <input
-                {...getInputProps({
-                  placeholder: 'Search Places ... by cep or by address',
-                  className: 'location-search-input input',
-                })}
-              />
-              <div className="autocomplete-dropdown-container">
-                {loading && <div>Loading...</div>}
-                {suggestions.map(suggestion => {
-                  const className = suggestion.active
-                    ? 'suggestion-item--active'
-                    : 'suggestion-item';
-                  // inline style for demonstration purpose
-                  const style = suggestion.active
-                    ? { backgroundColor: '#fafafa', cursor: 'pointer' }
-                    : { backgroundColor: '#ffffff', cursor: 'pointer' };
-                  return (
-                    <div
-                      {...getSuggestionItemProps(suggestion, {
-                        className,
-                        style,
-                      })}
-                    >
-                      <span>{suggestion.description}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </PlacesAutocomplete>
-      </div>
-    );
-  }
-}
-*/
 import GoogleMapReact from 'google-map-react';
 
-const Marker = ({ text }) => <div className="marker">
+const Marker = () => <div className="marker">
   You was here
 </div>;
 
@@ -84,27 +9,54 @@ class SearchGeoCoding extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      lat: -22.813373199999997,
-      lng: -47.2377045,
-      zoom: 11
+    if (typeof props.survivor !== "undefined" && typeof props.survivor.lonlat === "string") {
+      let lonlat = props.survivor.lonlat.split(' ');
+      lonlat = lonlat[1].replace('(', "") + ' ' + lonlat[2].replace(')', "")
+      this.state ={
+        lat: Number(lonlat.split(' ')[0]),
+        lng: Number(lonlat.split(' ')[1]),
+        zoom: 11
+      }
+    } else {
+      this.state = {
+        lat: -22.813373199999997,
+        lng: -47.2377045,
+        zoom: 11
+      }
     }
-    
     this.handleClick = this.handleClick.bind(this);
     this.getLocation = this.getLocation.bind(this);
+    this.updatelocation = this.updatelocation.bind(this);
     this._render = this._render.bind(this);
     this.getLocation();
   }
+
+  updatelocation(e) {
+    e.preventDefault();
+    
+    // console.log(items)
+    const survivor = {};
+    const id = this.props.survivor.location.split('/')
+    survivor.name = this.props.survivor.name + new Date().getTime();;
+    survivor.age = this.props.survivor.age;
+    survivor.gender = this.props.survivor.gender;
+    survivor.lonlat = this.state.lng + ' ' + this.state.lat;
+    survivor.id = id[id.length-1];
+    this.props.updatePeople(survivor);
+  }
+
   getLocation() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) =>{
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
-        console.log(position.coords);
-        this.setState({
+        if(!this.props.survivor) {
+          console.log(position.coords);
+          this.setState({
             lat: lat,
             lng: lng
-        })
+          })
+        }
         this._render();
         this.props.updatelonlat({ lng: this.state.lng, lat:this.state.lat})
       });
@@ -136,8 +88,11 @@ class SearchGeoCoding extends Component {
   render() {
     return (
       // Important! Always set the container height explicitly
-      <div style={{ height: '500px', width: '100%' }}>
+      <div style={{ height: this.props.height ? this.props.height : '500px', width: '100%' }}>
         {this._render()}
+        {this.props.survivor &&  <div className="submit">
+          <button className="button" onClick={this.updatelocation}>Change Location</button>
+        </div>}
       </div>
     );
   }
